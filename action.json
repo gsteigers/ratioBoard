@@ -1,0 +1,19 @@
+{
+  "actions": [
+   {
+     "name": "MAIN",
+     "fulfillment": {
+       "conversationName": "RatioBoard"
+     },
+     "intent": {
+       "name": "actions.intent.MAIN"
+     }
+   }
+  ],
+  "conversations": {
+   "factsAboutGoogle": {
+     "name": "RatioBoard",
+     "url": "https://us-central1-ratioboard-5cc52.cloudfunctions.net/sayNumber"
+   }
+  }
+}
