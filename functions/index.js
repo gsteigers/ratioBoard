@@ -1,72 +1,77 @@
 'use strict';
 
+process.env.DEBUG = 'actions-on-google:*';
+
+const ActionsSdkApp = require('actions-on-google').ActionsSdkApp;
 const functions = require('firebase-functions');
-const ActionsSdkAssistant = require('actions-on-google').ActionsSdkAssistant;
 
-/**
- * Endpoint which handles requests for a Google Assistant action which asks users to say a number
- * and read out the ordinal of that number.
- * e.g. If the user says "Twelve" the action will say "The ordinal of twelve is twelfth".
- */
-exports.ratioBoard = functions.https.onRequest((req, res) => {
-  const assistant = new ActionsSdkAssistant({request: req, response: res});
+const NO_INPUTS = [
+  'I didn\'t hear that.',
+  'If you\'re still there, say that again.',
+  'We can stop here. See you soon.'
+];
 
-  // List of re-prompts that are used when we did not understand a number from the user.
-  const reprompts = [
-    'I didn\'t hear a number',
-    'If you\'re still there, what\'s the number?',
-    'What is the number?'
-  ];
+exports.ratioBoard = functions.https.onRequest((request, response) => {
+  const app = new ActionsSdkApp({request, response});
+  var room = "";
+  var post = "";
 
-  const actionMap = new Map();
+  function mainIntent (app) {
+    console.log('mainIntent');
+    let inputPrompt = app.buildInputPrompt(true, '<speak>Hi! <break time="1"/> ' +
+      'I can post messages to a room <break time="1"/>' +
+      'Please say the name of the room that you would like to enter.', NO_INPUTS);
+    app.ask(inputPrompt);
+  }
 
-  actionMap.set(assistant.StandardIntents.MAIN, assistant => {
-    const inputPrompt = assistant.buildInputPrompt(true, `<speak>
-        Hi! <break time="1"/>
-        I can post messages to a room.
-        Pick a room.
-      </speak>`, reprompts
-    );
-    assistant.ask(inputPrompt);
-  });
-
-  actionMap.set(assistant.StandardIntents.TEXT, assistant => {
-      if(rawInput === "bye") {
-          assistant.tell("Goodbye!");
-      } else if(rawInput === null) {
-          //reprompt for room name
+  function roomHandler(app) {
+      console.log('roomHandler');
+      if(app.getRawInput() === 'bye') {
+          app.tell('Goodbye!');
+    //   } else if(app.getRawInput() === 'yes') {
+    //   } else if(app.getRawInput() === 'no') {
       } else {
-        //save room name
-        //find it in firebase
-        //prompt for post "room"
+          if(app.getRawInput() !== null) {
+              room = app.getRawInput();
+              let inputPrompt = app.buildInputPrompt(true, '<speak> You said to join room, ' +
+                room + '</speak>', NO_INPUTS);
+          }
       }
-  });
-
-  actionMap.set(assistant.StandardIntents.TEXT, assistant => {
-    const rawInput = assistant.getRawInput();
-
-    if(rawInput === "bye") {
-        assistant.tell("Goodbye!");
-    } else if(rawInput.includes("room")) {
-
-    } else {
-
     }
 
-    if (rawInput === 'bye') {
-      assistant.tell('Goodbye!');
-    } else if (isNaN(parseInt(rawInput, 10))) {
-      const inputPrompt = assistant.buildInputPrompt(false, 'I didn\'t quite get that, what was the number?', reprompts);
-      assistant.ask(inputPrompt);
-    } else {
-      const inputPrompt = assistant.buildInputPrompt(true, `<speak>
-          The ordinal of <say-as interpret-as="cardinal">${rawInput}</say-as> is
-          <say-as interpret-as="ordinal">${rawInput}</say-as>
-        </speak>`, reprompts
-      );
-      assistant.ask(inputPrompt);
-    }
-  });
+  function postHandler(app) {
+      console.log('postHandler');
+      if(app.getRawInput() === 'bye') {
+          app.tell('Goodbye!');
+      } else {
+      }
+  }
 
-  assistant.handleRequest(actionMap);
+  function getPostsHandler(app) {
+      console.log('getPostsHandler');
+      if(app.getRawInput() === 'bye') {
+          app.tell('Goodbye!');
+      } else {
+      }
+  }
+
+  function rawInput (app) {
+    console.log('rawInput');
+    if (app.getRawInput() === 'bye') {
+      app.tell('Goodbye!');
+    } else {
+      let inputPrompt = app.buildInputPrompt(true, '<speak>You said, ' +
+        app.getRawInput() + '</speak>', NO_INPUTS);
+      app.ask(inputPrompt);
+    }
+  }
+
+  let actionMap = new Map();
+  actionMap.set(app.StandardIntents.MAIN, mainIntent);
+  actionMap.set(actions.intent.ROOM, roomHandler);
+  actionMap.set(actions.intent.POST, postHandler);
+  actionMap.set(actions.intent.GET_POSTS, getPostsHandler);
+  actionMap.set(app.StandardIntents.TEXT, rawInput);
+
+  app.handleRequest(actionMap);
 });

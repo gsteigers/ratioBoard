@@ -1,19 +1,71 @@
 {
-  "actions": [
-   {
-     "name": "MAIN",
-     "fulfillment": {
-       "conversationName": "RatioBoard"
-     },
-     "intent": {
-       "name": "actions.intent.MAIN"
-     }
-   }
-  ],
-  "conversations": {
-   "factsAboutGoogle": {
-     "name": "RatioBoard",
-     "url": "https://us-central1-ratioboard-5cc52.cloudfunctions.net/sayNumber"
-   }
-  }
+	"actions": [
+      {
+        "description": "Default Welcome Intent",
+        "name": "MAIN",
+        "fulfillment": {
+          "conversationName": "ratioBoard"
+        },
+        "intent": {
+          "name": "actions.intent.MAIN",
+          "trigger": {
+            "queryPatterns": [
+              "talk to ratioBoard"
+            ]
+          }
+        }
+      },
+      {
+        "description": "Room Intent",
+        "name": "ROOM",
+        "fulfillment": {
+          "conversationName": "ratioBoard"
+        },
+        "intent": {
+          "name": "actions.intent.ROOM",
+          "trigger": {
+            "queryPatterns": [
+              "enter a room"
+            ]
+          }
+        }
+      },
+      {
+        "description": "Post Intent",
+        "name": "POST",
+        "fulfillment": {
+          "conversationName": "ratioBoard"
+        },
+        "intent": {
+          "name": "actions.intent.POST",
+          "trigger": {
+            "queryPatterns": [
+              "make a post"
+            ]
+          }
+        }
+      },
+      {
+        "description": "Get Posts Intent",
+        "name": "GET_POSTS",
+        "fulfillment": {
+          "conversationName": "ratioBoard"
+        },
+        "intent": {
+          "name": "actions.intent.GET_POSTS",
+          "trigger": {
+            "queryPatterns": [
+              "get posts"
+            ]
+          }
+        }
+      }
+    ],
+    "conversations": {
+      "ratioBoard": {
+        "name": "ratioBoard",
+        "url": "https://us-central1-ratioboard-5cc52.cloudfunctions.net/ratioBoard"
+      }
+    }
+
 }
